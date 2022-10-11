@@ -1,0 +1,30 @@
+
+create table users (
+    id int NOT NULL AUTO_INCREMENT,
+     email varchar(250),
+     password varchar(250),
+     fullname varchar(250),
+     age varchar(250),
+     address varchar(250),
+     balance DOUBLE,
+     account_number int,
+         PRIMARY KEY (id)
+  )
+table.increments('id')
+table.string('type')
+table.string('from')
+table.string('to')
+table.integer('user_id')
+create table transactions (
+    id int NOT NULL AUTO_INCREMENT,
+     type varchar(250),
+     account_from varchar(250),
+     account_to varchar(250),
+     user_id int,
+     PRIMARY KEY (id),
+
+  )
+  ALTER TABLE transactions
+
+ADD FOREIGN KEY (user_id) REFERENCES users(id);
+      FOREIGN KEY (user_id) REFERENCES users(id)
