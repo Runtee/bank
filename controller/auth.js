@@ -5,61 +5,76 @@ const database = require("../config/database_connection");
 
 
 
-exports.register = async (req, res, next) => {
-    bcrypt.hash(req.body.password, 10)
-    .then(hashedPassword => {
-       return database("users").insert({
-          username: req.body.username,
-          password: hashedPassword,
-          email: req.body.email
-       })
-       .returning(["id", "username"])
-       .then(users => {
-          res.json(users[0])
-       })
-       
-       .catch(error => next(error))
-    })
+exports.register = async (req, res) => {
+   try {
+      const email = req.body.email
+      const password = req.body.password
+      const fullname = req.body.fullname
+      const age = req.body.age
+      const address = req.body.address
+      const balance = 0
+      const account_number = req.body.account_number
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const checkuser = await database("users").where({ email: email })
+      if (checkuser) return res.status(400).json('user alreay exist')
+      const user = await database("users").insert({
+         email: email,
+         password: hashedPassword,
+         fullname: fullname,
+         age: age,
+         address: address,
+         balance: balance,
+         account_number: account_number
+      })
+      res.status(200).json(user)
+   }
+
+   catch (error) {
+      next(error)
+   }
 };
 
-exports.login = async (req, res, next) => {
-    database("users")
-    .where({email: req.body.email})
-    .first()
-    .then(user => {
-       if(!user){
-          res.status(401).json({
-             error: "No user by that name"
-          })
-       }else{
-          return bcrypt
-          .compare(req.body.password, user.password)
-          .then(isAuthenticated => {
-             if(!isAuthenticated){
-                res.status(401).json({
-                   error: "Unauthorized Access!"
-                })
-             }else{
-                const token =  jwt.createToken({ id: user.id });
-                return res.status(200).json({
-                    access_token: token,
-                    token_type: 'Bearer',
-                    expires_in: jwtConfig.ttl
-                });
-             }
-          })
-       }
-    })
+exports.login = async (req, res) => {
+   try{
+   const user = await database("users").where({ email: req.body.email }).first()
+   if (!user) {
+      res.status(401).json({
+         error: "login error"
+      })
+   }
+   bcrypt.compare(req.body.password, user.password)
+      .then(isAuthenticated => {
+         if (!isAuthenticated) {
+            res.status(401).json({
+               error: "login error"
+            })
+         } else {
+            const token = jwt.createToken({ id: user.id });
+            return res.status(200).json({
+               access_token: token,
+               token_type: 'Bearer',
+               expires_in: jwtConfig.ttl
+            });
+         }
+      })}
+      catch(error){
+         res.status(500).json(error)
+      }
 };
 
-exports.logout = async (req, res) => { 
-    const token = req.token;
-    const now = new Date();
-    const expire = new Date(req.user.exp);
-    const milliseconds = now.getTime() - expire.getTime();
-    /* ----------------------------- BlackList Token ---------------------------- */
-    await cache.set(token, token, milliseconds);
+exports.logout = async (req, res) => {
+   try{
+   const token = req.token;
+   const now = new Date();
+   const expire = new Date(req.user.exp);
+   const milliseconds = now.getTime() - expire.getTime();
+   /* ----------------------------- BlackList Token ---------------------------- */
+   await cache.set(token, token, milliseconds);
 
-    return res.status(200).json({ message: 'Logged out successfully' });
+   return res.status(200).json({ message: 'Logged out successfully' });
+   }
+   catch(err){
+      res.status(500).json(err)
+   }
 };
 

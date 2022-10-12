@@ -29,9 +29,6 @@ module.exports = (app) => {
     transactionsRoutes.put('/withdraw', transactionsController.withdraw);
     // transfer money from your wallet to another user
     transactionsRoutes.put('/transfer', transactionsController.transfer);
-    // view transaction histroy
-    transactionsRoutes.get('/', transactionsController.viewTransactions)
-
     //
 
     // User routes
