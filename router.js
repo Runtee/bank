@@ -1,10 +1,18 @@
 const express = require('express');
 const authVerfiy = require('./middleware/auth');
-const validate = require('./utils/validator'); 
-const authController= require('./controller/auth')
+const authController = require('./controller/auth')
 const userController = require('./controller/user')
 const transactionsController = require('./controller/transactions')
-
+const { userSignInValidationRules,
+    userSignUpValidationRules,
+    amountCheckValidationRules,
+    transferValidationRules,
+    showUserValidationRules,
+    validateSignUp,
+    validateAmount,
+    validateTransfer,
+    validateShowUser,
+    validateSignin, } = require('./middleware/validator')
 
 module.exports = (app) => {
     const allRoutes = express.Router();
@@ -15,31 +23,31 @@ module.exports = (app) => {
     // Authentivcation routes 
     allRoutes.use('/auth', authRoutes);
     // register a user
-    authRoutes.post('/register', authController.register);
+    authRoutes.post('/register', [userSignUpValidationRules(), validateSignUp], authController.register);
     // login a user
-    authRoutes.post('/login', authController.login);
+    authRoutes.post('/login', [userSignInValidationRules(), validateSignin], authController.login);
     //
-    
-    
+
+
     // Transaction routes
-    allRoutes.use('/transactions',authVerfiy, transactionsRoutes);
+    allRoutes.use('/transactions', authVerfiy, transactionsRoutes);
     // deposit funds to your wallet
-    transactionsRoutes.put('/deposite' ,transactionsController.deposite);
+    transactionsRoutes.put('/deposite', [amountCheckValidationRules(), amountCheckValidationRules], transactionsController.deposite);
     // withdraw from your wallet
-    transactionsRoutes.put('/withdraw', transactionsController.withdraw);
+    transactionsRoutes.put('/withdraw', [amountCheckValidationRules(), validateAmount], transactionsController.withdraw);
     // transfer money from your wallet to another user
-    transactionsRoutes.put('/transfer', transactionsController.transfer);
+    transactionsRoutes.put('/transfer', [transferValidationRules(), validateTransfer], transactionsController.transfer);
     //
 
     // User routes
     allRoutes.use('/user', userRoutes);
     //view user details
-    userRoutes.get('/',userController.getUser)
+    userRoutes.get('/', [showUserValidationRules(), validateShowUser], userController.getUser)
 
 
     // logout routes
-    allRoutes.post('/logout',authController.logout)
+    allRoutes.post('/logout', authController.logout)
 
-    allRoutes.all('*',  (req, res) => res.status(404).json({'error': 'not found'}))
+    allRoutes.all('*', (req, res) => res.status(404).json({ 'error': 'not found' }))
     app.use("/", allRoutes);
 }
