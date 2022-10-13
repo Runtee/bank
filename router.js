@@ -42,7 +42,7 @@ module.exports = (app) => {
     // User routes
     allRoutes.use('/user', userRoutes);
     //view user details
-    userRoutes.get('/', [showUserValidationRules(), validateShowUser], userController.getUser)
+    userRoutes.get('/:email', userController.getUser)
 
 
     // logout routes
