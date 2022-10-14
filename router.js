@@ -32,11 +32,11 @@ module.exports = (app) => {
     // Transaction routes
     allRoutes.use('/transactions', authVerfiy, transactionsRoutes);
     // deposit funds to your wallet
-    transactionsRoutes.put('/deposite', [amountCheckValidationRules(), amountCheckValidationRules], transactionsController.deposite);
+    transactionsRoutes.put('/deposite', transactionsController.deposite);
     // withdraw from your wallet
-    transactionsRoutes.put('/withdraw', [amountCheckValidationRules(), validateAmount], transactionsController.withdraw);
+    transactionsRoutes.put('/withdraw',  transactionsController.withdraw);
     // transfer money from your wallet to another user
-    transactionsRoutes.put('/transfer', [transferValidationRules(), validateTransfer], transactionsController.transfer);
+    transactionsRoutes.put('/transfer', transactionsController.transfer);
     //
 
     // User routes

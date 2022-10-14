@@ -1,4 +1,4 @@
-# Knex Express Project Sample Documentation
+# Documentation
 
 ## Usage
 

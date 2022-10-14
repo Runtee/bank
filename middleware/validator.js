@@ -79,12 +79,13 @@ const validateSignUp = (req, res, next) => {
 };
 const validateAmount = (req, res, next) => {
     const errors = amountCheckValidationRules(req);
+    console.log(errors)
     if (!errors.isEmpty()) {
         var messages = [];
         errors.array().forEach((error) => {
             messages.push(error.msg);
         });
-        res.status(400).json(messages);
+        return res.status(400).json(messages);
 
     }
     next();
